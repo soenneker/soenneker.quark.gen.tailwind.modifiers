@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Soenneker.Quark.Gen.Tailwind.Modifiers/Soenneker.Quark.Gen.Tailwind.Modifiers.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Soenneker.Quark.Gen.Tailwind.Modifiers.Tests/Soenneker.Quark.Gen.Tailwind.Modifiers.Tests.csproj" />
+  </Folder>
+</Solution>

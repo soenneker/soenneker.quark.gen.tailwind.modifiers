@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Soenneker.Tests.Unit" Version="4.0.1140" />
+        <PackageReference Include="TUnit" Version="1.44.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Soenneker.Quark.Gen.Tailwind.Modifiers\Soenneker.Quark.Gen.Tailwind.Modifiers.csproj" />
+    </ItemGroup>
+
+</Project>
