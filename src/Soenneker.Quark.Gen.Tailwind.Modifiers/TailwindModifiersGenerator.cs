@@ -67,6 +67,7 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
         new("OnPrint", "print"),
         new("OnRtl", "rtl"),
         new("OnLtr", "ltr"),
+        new("OnDark", "dark"),
         new("OnFirst", "first"),
         new("OnLast", "last"),
         new("OnOnly", "only"),
