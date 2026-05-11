@@ -14,34 +14,100 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
 {
     private const string AttributeMetadataName = "Soenneker.Quark.TailwindModifiersAttribute";
 
-    private static readonly string[] ModifierProperties =
+    private static readonly ModifierProperty[] ModifierProperties =
     {
-        "OnHover",
-        "OnFocus",
-        "OnFocusVisible",
-        "OnActive",
-        "OnDisabled",
-        "OnDark",
-        "OnVisited",
-        "OnChecked",
-        "OnOpen",
-        "OnFirst",
-        "OnLast",
-        "OnOdd",
-        "OnEven",
-        "OnBefore",
-        "OnAfter",
-        "OnPlaceholder",
-        "OnSelection",
-        "OnMarker",
-        "OnFirstLetter",
-        "OnFirstLine",
-        "OnFile",
-        "OnBackdrop",
-        "OnGroupHover",
-        "OnGroupFocus",
-        "OnPeerHover",
-        "OnPeerFocus"
+        new("OnSm", "sm"),
+        new("OnMd", "md"),
+        new("OnLg", "lg"),
+        new("OnXl", "xl"),
+        new("On2xl", "2xl"),
+        new("OnMaxSm", "max-sm"),
+        new("OnMaxMd", "max-md"),
+        new("OnMaxLg", "max-lg"),
+        new("OnMaxXl", "max-xl"),
+        new("OnContainerSm", "@sm"),
+        new("OnContainerMd", "@md"),
+        new("OnContainerLg", "@lg"),
+        new("OnContainerXl", "@xl"),
+        new("OnContainer2xl", "@2xl"),
+        new("OnContainerMaxSm", "@max-sm"),
+        new("OnContainerMaxMd", "@max-md"),
+        new("OnContainer", "@container"),
+        new("OnContainerNormal", "@container-normal"),
+        new("OnHover", "hover"),
+        new("OnFocus", "focus"),
+        new("OnFocusVisible", "focus-visible"),
+        new("OnFocusWithin", "focus-within"),
+        new("OnActive", "active"),
+        new("OnVisited", "visited"),
+        new("OnTarget", "target"),
+        new("OnOpen", "open"),
+        new("OnDisabled", "disabled"),
+        new("OnEnabled", "enabled"),
+        new("OnChecked", "checked"),
+        new("OnIndeterminate", "indeterminate"),
+        new("OnDefault", "default"),
+        new("OnRequired", "required"),
+        new("OnOptional", "optional"),
+        new("OnValid", "valid"),
+        new("OnInvalid", "invalid"),
+        new("OnInRange", "in-range"),
+        new("OnOutOfRange", "out-of-range"),
+        new("OnPlaceholderShown", "placeholder-shown"),
+        new("OnReadOnly", "read-only"),
+        new("OnReadWrite", "read-write"),
+        new("OnAutofill", "autofill"),
+        new("OnMotionSafe", "motion-safe"),
+        new("OnMotionReduce", "motion-reduce"),
+        new("OnContrastMore", "contrast-more"),
+        new("OnContrastLess", "contrast-less"),
+        new("OnForcedColors", "forced-colors"),
+        new("OnPortrait", "portrait"),
+        new("OnLandscape", "landscape"),
+        new("OnPrint", "print"),
+        new("OnRtl", "rtl"),
+        new("OnLtr", "ltr"),
+        new("OnFirst", "first"),
+        new("OnLast", "last"),
+        new("OnOnly", "only"),
+        new("OnOdd", "odd"),
+        new("OnEven", "even"),
+        new("OnEmpty", "empty"),
+        new("OnBefore", "before"),
+        new("OnAfter", "after"),
+        new("OnPlaceholder", "placeholder"),
+        new("OnFile", "file"),
+        new("OnMarker", "marker"),
+        new("OnSelection", "selection"),
+        new("OnFirstLetter", "first-letter"),
+        new("OnFirstLine", "first-line"),
+        new("OnBackdrop", "backdrop"),
+        new("OnGroupHover", "group-hover"),
+        new("OnGroupFocus", "group-focus"),
+        new("OnGroupFocusVisible", "group-focus-visible"),
+        new("OnGroupActive", "group-active"),
+        new("OnGroupVisited", "group-visited"),
+        new("OnGroupDisabled", "group-disabled"),
+        new("OnGroupChecked", "group-checked"),
+        new("OnGroupOpen", "group-open"),
+        new("OnPeerHover", "peer-hover"),
+        new("OnPeerFocus", "peer-focus"),
+        new("OnPeerFocusVisible", "peer-focus-visible"),
+        new("OnPeerActive", "peer-active"),
+        new("OnPeerDisabled", "peer-disabled"),
+        new("OnPeerChecked", "peer-checked"),
+        new("OnPeerInvalid", "peer-invalid"),
+        new("OnPeerRequired", "peer-required"),
+        new("OnPeerPlaceholderShown", "peer-placeholder-shown"),
+        new("OnPeerOpen", "peer-open"),
+        new("OnAriaChecked", "aria-checked"),
+        new("OnAriaDisabled", "aria-disabled"),
+        new("OnAriaExpanded", "aria-expanded"),
+        new("OnAriaHidden", "aria-hidden"),
+        new("OnAriaPressed", "aria-pressed"),
+        new("OnAriaReadonly", "aria-readonly"),
+        new("OnAriaRequired", "aria-required"),
+        new("OnAriaSelected", "aria-selected")
     };
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -150,16 +216,16 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
 
         for (var i = 0; i < ModifierProperties.Length; i++)
         {
-            string property = ModifierProperties[i];
+            ModifierProperty property = ModifierProperties[i];
             sb.Append("    public static ");
             sb.Append(candidate.BuilderTypeName);
             sb.Append(' ');
-            sb.Append(property);
+            sb.Append(property.Name);
             sb.Append(" => new ");
             sb.Append(candidate.BuilderTypeName);
-            sb.Append("().");
-            sb.Append(property);
-            sb.AppendLine(";");
+            sb.Append("().Modifier(\"");
+            sb.Append(property.Modifier);
+            sb.AppendLine("\");");
         }
 
         sb.AppendLine("}");
@@ -187,6 +253,18 @@ internal sealed class TailwindModifiersAttribute : global::System.Attribute
     public global::System.Type BuilderType { get; }
 }
 """;
+
+    private readonly struct ModifierProperty
+    {
+        public ModifierProperty(string name, string modifier)
+        {
+            Name = name;
+            Modifier = modifier;
+        }
+
+        public string Name { get; }
+        public string Modifier { get; }
+    }
 
     private readonly struct ModifierCandidate : IEquatable<ModifierCandidate>
     {
