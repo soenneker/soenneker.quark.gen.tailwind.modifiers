@@ -68,17 +68,6 @@ public abstract class CssBuilderBase<TBuilder> where TBuilder : CssBuilderBase<T
     public TBuilder Modifier(string modifier) => (TBuilder)this;
 }
 
-public sealed class ColorPaletteBuilder<TBuilder>
-{
-}
-
-public sealed class ColorPaletteEnum
-{
-    public static readonly ColorPaletteEnum Slate = new();
-    public static readonly ColorPaletteEnum Neutral = new();
-    public static readonly ColorPaletteEnum Rose = new();
-}
-
 public sealed class DemoBuilder : CssBuilderBase<DemoBuilder>
 {
     internal DemoBuilder()

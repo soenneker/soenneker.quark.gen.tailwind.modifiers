@@ -12,9 +12,9 @@ namespace Soenneker.Quark.Gen.Tailwind.Modifiers;
 [Generator]
 public sealed class TailwindModifiersGenerator : IIncrementalGenerator
 {
-    private const string AttributeMetadataName = "Soenneker.Quark.TailwindModifiersAttribute";
+    private const string _attributeMetadataName = "Soenneker.Quark.TailwindModifiersAttribute";
 
-    private static readonly ModifierProperty[] ModifierProperties =
+    private static readonly ModifierProperty[] _modifierProperties =
     {
         new("OnSm", "sm"),
         new("OnMd", "md"),
@@ -181,8 +181,8 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
             if (attrClass is null)
                 continue;
 
-            if (string.Equals(attrClass.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), "global::" + AttributeMetadataName, StringComparison.Ordinal) ||
-                string.Equals(attrClass.ToDisplayString(), AttributeMetadataName, StringComparison.Ordinal))
+            if (string.Equals(attrClass.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), "global::" + _attributeMetadataName, StringComparison.Ordinal) ||
+                string.Equals(attrClass.ToDisplayString(), _attributeMetadataName, StringComparison.Ordinal))
             {
                 attribute = attr;
                 break;
@@ -222,7 +222,7 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
             typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             builderType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             ns,
-            containingTypes.ToImmutableArray(),
+            [..containingTypes],
             includeColorPalettes);
     }
 
@@ -254,9 +254,9 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine("{");
 
-        for (var i = 0; i < ModifierProperties.Length; i++)
+        for (var i = 0; i < _modifierProperties.Length; i++)
         {
-            ModifierProperty property = ModifierProperties[i];
+            ModifierProperty property = _modifierProperties[i];
             sb.Append("    public static ");
             sb.Append(candidate.BuilderTypeName);
             sb.Append(' ');
