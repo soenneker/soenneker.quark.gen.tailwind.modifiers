@@ -111,6 +111,32 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
         new("OnAriaSelected", "aria-selected")
     };
 
+    private static readonly PaletteProperty[] PaletteProperties =
+    {
+        new("Slate"),
+        new("Gray"),
+        new("Zinc"),
+        new("Neutral"),
+        new("Stone"),
+        new("Red"),
+        new("Orange"),
+        new("Amber"),
+        new("Yellow"),
+        new("Lime"),
+        new("Green"),
+        new("Emerald"),
+        new("Teal"),
+        new("Cyan"),
+        new("Sky"),
+        new("Blue"),
+        new("Indigo"),
+        new("Violet"),
+        new("Purple"),
+        new("Fuchsia"),
+        new("Pink"),
+        new("Rose")
+    };
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx => ctx.AddSource("TailwindModifiersAttribute.g.cs", AttributeSource));
@@ -179,12 +205,25 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
             containingType = containingType.ContainingType;
         }
 
+        var includeColorPalettes = false;
+
+        foreach (KeyValuePair<string, TypedConstant> namedArgument in attribute.NamedArguments)
+        {
+            if (string.Equals(namedArgument.Key, "IncludeColorPalettes", StringComparison.Ordinal) &&
+                namedArgument.Value.Value is bool value)
+            {
+                includeColorPalettes = value;
+                break;
+            }
+        }
+
         return new ModifierCandidate(
             typeSymbol.Name,
             typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             builderType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             ns,
-            containingTypes.ToImmutableArray());
+            containingTypes.ToImmutableArray(),
+            includeColorPalettes);
     }
 
     private static string GenerateModifierSource(ModifierCandidate candidate)
@@ -229,6 +268,25 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
             sb.AppendLine("\");");
         }
 
+        if (candidate.IncludeColorPalettes)
+        {
+            sb.AppendLine();
+
+            for (var i = 0; i < PaletteProperties.Length; i++)
+            {
+                PaletteProperty property = PaletteProperties[i];
+                sb.Append("    public static global::Soenneker.Quark.ColorPaletteBuilder<");
+                sb.Append(candidate.BuilderTypeName);
+                sb.Append("> ");
+                sb.Append(property.Name);
+                sb.Append(" => new(global::Soenneker.Quark.ColorPaletteEnum.");
+                sb.Append(property.Name);
+                sb.Append(", static token => new ");
+                sb.Append(candidate.BuilderTypeName);
+                sb.AppendLine("().Token(token));");
+            }
+        }
+
         sb.AppendLine("}");
 
         for (var i = 0; i < candidate.ContainingTypes.Length; i++)
@@ -252,6 +310,8 @@ internal sealed class TailwindModifiersAttribute : global::System.Attribute
     }
 
     public global::System.Type BuilderType { get; }
+
+    public bool IncludeColorPalettes { get; init; }
 }
 """;
 
@@ -269,13 +329,14 @@ internal sealed class TailwindModifiersAttribute : global::System.Attribute
 
     private readonly struct ModifierCandidate : IEquatable<ModifierCandidate>
     {
-        public ModifierCandidate(string typeName, string fullTypeName, string builderTypeName, string? ns, ImmutableArray<string> containingTypes)
+        public ModifierCandidate(string typeName, string fullTypeName, string builderTypeName, string? ns, ImmutableArray<string> containingTypes, bool includeColorPalettes)
         {
             TypeName = typeName;
             FullTypeName = fullTypeName;
             BuilderTypeName = builderTypeName;
             Namespace = ns;
             ContainingTypes = containingTypes;
+            IncludeColorPalettes = includeColorPalettes;
         }
 
         public string TypeName { get; }
@@ -283,13 +344,15 @@ internal sealed class TailwindModifiersAttribute : global::System.Attribute
         public string BuilderTypeName { get; }
         public string? Namespace { get; }
         public ImmutableArray<string> ContainingTypes { get; }
+        public bool IncludeColorPalettes { get; }
 
         public bool Equals(ModifierCandidate other) =>
             string.Equals(TypeName, other.TypeName, StringComparison.Ordinal) &&
             string.Equals(FullTypeName, other.FullTypeName, StringComparison.Ordinal) &&
             string.Equals(BuilderTypeName, other.BuilderTypeName, StringComparison.Ordinal) &&
             string.Equals(Namespace, other.Namespace, StringComparison.Ordinal) &&
-            ContainingTypes.SequenceEqual(other.ContainingTypes);
+            ContainingTypes.SequenceEqual(other.ContainingTypes) &&
+            IncludeColorPalettes == other.IncludeColorPalettes;
 
         public override bool Equals(object? obj) => obj is ModifierCandidate other && Equals(other);
 
@@ -306,8 +369,20 @@ internal sealed class TailwindModifiersAttribute : global::System.Attribute
                 for (var i = 0; i < ContainingTypes.Length; i++)
                     hash = (hash * 31) + StringComparer.Ordinal.GetHashCode(ContainingTypes[i]);
 
+                hash = (hash * 31) + IncludeColorPalettes.GetHashCode();
+
                 return hash;
             }
         }
+    }
+
+    private readonly struct PaletteProperty
+    {
+        public PaletteProperty(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; }
     }
 }
