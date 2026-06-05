@@ -9,6 +9,9 @@ using System.Text;
 
 namespace Soenneker.Quark.Gen.Tailwind.Modifiers;
 
+/// <summary>
+/// Represents the tailwind modifiers generator.
+/// </summary>
 [Generator]
 public sealed class TailwindModifiersGenerator : IIncrementalGenerator
 {
@@ -137,6 +140,10 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
         new("Rose")
     };
 
+    /// <summary>
+    /// Executes the initialize operation.
+    /// </summary>
+    /// <param name="context">The context.</param>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx => ctx.AddSource("TailwindModifiersAttribute.g.cs", AttributeSource));
