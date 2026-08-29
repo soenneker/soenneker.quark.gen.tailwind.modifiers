@@ -141,9 +141,9 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
     };
 
     /// <summary>
-    /// Executes the initialize operation.
+    /// Initializes the Tailwind Modifiers Generator so it is ready for use.
     /// </summary>
-    /// <param name="context">The context.</param>
+    /// <param name="context">HTTP context containing the Authorization header.</param>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx => ctx.AddSource("TailwindModifiersAttribute.g.cs", AttributeSource));
