@@ -10,7 +10,7 @@ using System.Text;
 namespace Soenneker.Quark.Gen.Tailwind.Modifiers;
 
 /// <summary>
-/// Represents the tailwind modifiers generator.
+/// Generates Tailwind modifier and optional color-palette entry points for attributed Quark builder classes.
 /// </summary>
 [Generator]
 public sealed class TailwindModifiersGenerator : IIncrementalGenerator
@@ -141,9 +141,9 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
     };
 
     /// <summary>
-    /// Initializes the Tailwind Modifiers Generator so it is ready for use.
+    /// Registers attribute emission, target discovery, and modifier source generation.
     /// </summary>
-    /// <param name="context">HTTP context containing the Authorization header.</param>
+    /// <param name="context">The incremental generator initialization context.</param>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx => ctx.AddSource("TailwindModifiersAttribute.g.cs", AttributeSource));
