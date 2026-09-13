@@ -40,6 +40,8 @@ BackgroundColor.OnAriaExpanded
 
 Each property returns a fresh `BackgroundColorBuilder` with the corresponding modifier applied, ready for the builder’s normal value properties or methods (for example, `BackgroundColor.OnHover.Primary`).
 
+A modifier applies to the **next** value in the chain. `BackgroundColor.Primary.OnHover.Secondary` produces a base primary background and a secondary background on hover. The generator creates C# API entry points; it does not compile a stylesheet. Applications use [Tailwind.Manifest and Tailwind](https://quark.soenneker.com/generators) to discover utilities and produce CSS.
+
 Generated variants cover responsive and max-width breakpoints, container queries, interaction and form states, media preferences, direction and dark mode, structural pseudo-classes, pseudo-elements, group and peer state, and common ARIA states.
 
 ## Color palettes
