@@ -35,8 +35,6 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
         new("OnContainer2xl", "@2xl"),
         new("OnContainerMaxSm", "@max-sm"),
         new("OnContainerMaxMd", "@max-md"),
-        new("OnContainer", "@container"),
-        new("OnContainerNormal", "@container-normal"),
         new("OnHover", "hover"),
         new("OnFocus", "focus"),
         new("OnFocusVisible", "focus-visible"),
@@ -137,7 +135,11 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
         new("Purple"),
         new("Fuchsia"),
         new("Pink"),
-        new("Rose")
+        new("Rose"),
+        new("Mauve"),
+        new("Olive"),
+        new("Mist"),
+        new("Taupe")
     };
 
     /// <summary>
@@ -260,9 +262,9 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
                 sb.Append(candidate.BuilderTypeName);
                 sb.Append("> ");
                 sb.Append(property.Name);
-                sb.Append(" => new(global::Soenneker.Quark.ColorPaletteEnum.");
-                sb.Append(property.Name);
-                sb.Append(", static token => new ");
+                sb.Append(" => new(\"");
+                sb.Append(property.Name.ToLowerInvariant());
+                sb.Append("\", static token => new ");
                 sb.Append(candidate.BuilderTypeName);
                 sb.AppendLine("().Token(token));");
             }

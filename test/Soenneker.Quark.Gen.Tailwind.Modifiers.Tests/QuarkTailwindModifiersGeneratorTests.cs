@@ -99,9 +99,25 @@ public static partial class Demo
         GeneratorDriverRunResult result = driver.GetRunResult();
         string generated = string.Join("\n", result.GeneratedTrees.Select(static tree => tree.GetText().ToString()));
 
-        AssertContains(generated, "public static global::Soenneker.Quark.ColorPaletteBuilder<global::Soenneker.Quark.DemoBuilder> Slate => new(global::Soenneker.Quark.ColorPaletteEnum.Slate, static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
-        AssertContains(generated, "public static global::Soenneker.Quark.ColorPaletteBuilder<global::Soenneker.Quark.DemoBuilder> Neutral => new(global::Soenneker.Quark.ColorPaletteEnum.Neutral, static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
-        AssertContains(generated, "public static global::Soenneker.Quark.ColorPaletteBuilder<global::Soenneker.Quark.DemoBuilder> Rose => new(global::Soenneker.Quark.ColorPaletteEnum.Rose, static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+        AssertContains(generated, "public static global::Soenneker.Quark.ColorPaletteBuilder<global::Soenneker.Quark.DemoBuilder> Slate => new(\"slate\", static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+        AssertContains(generated, "public static global::Soenneker.Quark.ColorPaletteBuilder<global::Soenneker.Quark.DemoBuilder> Neutral => new(\"neutral\", static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+        AssertContains(generated, "public static global::Soenneker.Quark.ColorPaletteBuilder<global::Soenneker.Quark.DemoBuilder> Rose => new(\"rose\", static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+        AssertContains(generated, "Mauve => new(\"mauve\", static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+        AssertContains(generated, "Olive => new(\"olive\", static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+        AssertContains(generated, "Mist => new(\"mist\", static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+        AssertContains(generated, "Taupe => new(\"taupe\", static token => new global::Soenneker.Quark.DemoBuilder().Token(token));");
+    }
+
+    [Test]
+    public void Container_declarations_are_not_generated_as_variants()
+    {
+        const string source = "namespace Soenneker.Quark; public class DemoBuilder {} [TailwindModifiers(typeof(DemoBuilder))] public static partial class Demo {}";
+        var compilation = CSharpCompilation.Create("ContainerTests", [CSharpSyntaxTree.ParseText(source)],
+            [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new TailwindModifiersGenerator()).RunGenerators(compilation);
+        string generated = string.Join("\n", driver.GetRunResult().GeneratedTrees.Select(tree => tree.ToString()));
+        if (generated.Contains(" OnContainer =>", StringComparison.Ordinal) || generated.Contains(" OnContainerNormal =>", StringComparison.Ordinal))
+            throw new InvalidOperationException("Container declarations must not be generated as query variants.");
     }
 
     private static void AssertContains(string source, string expected)
