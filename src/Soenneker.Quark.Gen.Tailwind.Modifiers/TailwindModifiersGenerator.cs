@@ -179,12 +179,12 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
             ? containingNamespace.ToDisplayString()
             : null;
 
-        var containingTypes = new Stack<string>();
+        Stack<string>? containingTypes = null;
         INamedTypeSymbol? containingType = typeSymbol.ContainingType;
 
         while (containingType is not null)
         {
-            containingTypes.Push(containingType.Name);
+            (containingTypes ??= new Stack<string>()).Push(containingType.Name);
             containingType = containingType.ContainingType;
         }
 
@@ -205,7 +205,7 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
             typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             builderType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             ns,
-            [..containingTypes],
+            containingTypes is null ? ImmutableArray<string>.Empty : [..containingTypes],
             includeColorPalettes);
     }
 
@@ -263,7 +263,7 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
                 sb.Append("> ");
                 sb.Append(property.Name);
                 sb.Append(" => new(\"");
-                sb.Append(property.Name.ToLowerInvariant());
+                sb.Append(property.Token);
                 sb.Append("\", static token => new ");
                 sb.Append(candidate.BuilderTypeName);
                 sb.AppendLine("().Token(token));");
@@ -298,74 +298,4 @@ internal sealed class TailwindModifiersAttribute : global::System.Attribute
 }
 """;
 
-    private readonly struct ModifierProperty
-    {
-        public ModifierProperty(string name, string modifier)
-        {
-            Name = name;
-            Modifier = modifier;
-        }
-
-        public string Name { get; }
-        public string Modifier { get; }
-    }
-
-    private readonly struct ModifierCandidate : IEquatable<ModifierCandidate>
-    {
-        public ModifierCandidate(string typeName, string fullTypeName, string builderTypeName, string? ns, ImmutableArray<string> containingTypes, bool includeColorPalettes)
-        {
-            TypeName = typeName;
-            FullTypeName = fullTypeName;
-            BuilderTypeName = builderTypeName;
-            Namespace = ns;
-            ContainingTypes = containingTypes;
-            IncludeColorPalettes = includeColorPalettes;
-        }
-
-        public string TypeName { get; }
-        public string FullTypeName { get; }
-        public string BuilderTypeName { get; }
-        public string? Namespace { get; }
-        public ImmutableArray<string> ContainingTypes { get; }
-        public bool IncludeColorPalettes { get; }
-
-        public bool Equals(ModifierCandidate other) =>
-            string.Equals(TypeName, other.TypeName, StringComparison.Ordinal) &&
-            string.Equals(FullTypeName, other.FullTypeName, StringComparison.Ordinal) &&
-            string.Equals(BuilderTypeName, other.BuilderTypeName, StringComparison.Ordinal) &&
-            string.Equals(Namespace, other.Namespace, StringComparison.Ordinal) &&
-            ContainingTypes.SequenceEqual(other.ContainingTypes) &&
-            IncludeColorPalettes == other.IncludeColorPalettes;
-
-        public override bool Equals(object? obj) => obj is ModifierCandidate other && Equals(other);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hash = 17;
-                hash = (hash * 31) + StringComparer.Ordinal.GetHashCode(TypeName);
-                hash = (hash * 31) + StringComparer.Ordinal.GetHashCode(FullTypeName);
-                hash = (hash * 31) + StringComparer.Ordinal.GetHashCode(BuilderTypeName);
-                hash = (hash * 31) + (Namespace is null ? 0 : StringComparer.Ordinal.GetHashCode(Namespace));
-
-                for (var i = 0; i < ContainingTypes.Length; i++)
-                    hash = (hash * 31) + StringComparer.Ordinal.GetHashCode(ContainingTypes[i]);
-
-                hash = (hash * 31) + IncludeColorPalettes.GetHashCode();
-
-                return hash;
-            }
-        }
-    }
-
-    private readonly struct PaletteProperty
-    {
-        public PaletteProperty(string name)
-        {
-            Name = name;
-        }
-
-        public string Name { get; }
-    }
 }
