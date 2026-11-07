@@ -9,7 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" />
-        <PackageReference Include="Soenneker.Tests.Unit" Version="11.0.1423" />
+        <PackageReference Include="Soenneker.Tests.Unit" Version="11.0.1424" />
         <PackageReference Include="TUnit" Version="1.81.10" />
     </ItemGroup>
 
