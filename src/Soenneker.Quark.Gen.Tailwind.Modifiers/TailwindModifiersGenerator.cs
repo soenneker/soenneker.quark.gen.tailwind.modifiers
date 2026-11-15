@@ -237,6 +237,16 @@ public sealed class TailwindModifiersGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine("{");
 
+        sb.AppendLine("    /// <summary>Creates a builder with a modifier that applies to the next value in the chain.</summary>");
+        sb.AppendLine("    /// <param name=\"modifier\">The Tailwind modifier or arbitrary variant selector.</param>");
+        sb.AppendLine("    /// <returns>A new builder with the pending modifier.</returns>");
+        sb.Append("    public static ");
+        sb.Append(candidate.BuilderTypeName);
+        sb.Append(" Modifier(string modifier) => new ");
+        sb.Append(candidate.BuilderTypeName);
+        sb.AppendLine("().Modifier(modifier);");
+        sb.AppendLine();
+
         for (var i = 0; i < _modifierProperties.Length; i++)
         {
             ModifierProperty property = _modifierProperties[i];

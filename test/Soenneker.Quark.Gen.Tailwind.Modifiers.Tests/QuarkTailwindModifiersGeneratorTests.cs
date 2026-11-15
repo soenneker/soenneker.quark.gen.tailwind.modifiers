@@ -3,11 +3,60 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Linq;
+using System.IO;
 
 namespace Soenneker.Quark.Gen.Tailwind.Modifiers.Tests;
 
 public sealed class QuarkTailwindModifiersGeneratorTests : UnitTest
 {
+    [Test]
+    public void Static_modifier_compiles_and_forwards_arbitrary_selector_to_a_new_builder()
+    {
+        const string source = """
+namespace Soenneker.Quark;
+
+public sealed class DemoBuilder
+{
+    private string _modifier = "";
+    internal DemoBuilder() { }
+    public DemoBuilder Modifier(string modifier) { _modifier = modifier; return this; }
+    public string Token(string token) => _modifier + ":min-h-" + token;
+}
+
+[TailwindModifiers(typeof(DemoBuilder))]
+public static partial class Demo
+{
+    public static string Verify()
+    {
+        var first = Modifier("[&_[data-slot=tag-input-inline-container]]");
+        var second = Modifier("hover");
+        return first.Token("7") + "|" + second.Token("0");
+    }
+}
+""";
+
+        var compilation = CSharpCompilation.Create(
+            "StaticModifierTests",
+            [CSharpSyntaxTree.ParseText(source)],
+            [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new TailwindModifiersGenerator());
+        driver.RunGeneratorsAndUpdateCompilation(compilation, out Compilation output, out var diagnostics);
+        if (diagnostics.Any(static diagnostic => diagnostic.Severity == DiagnosticSeverity.Error))
+            throw new InvalidOperationException(string.Join("\n", diagnostics));
+
+        using var stream = new MemoryStream();
+        var result = output.Emit(stream);
+        if (!result.Success)
+            throw new InvalidOperationException(string.Join("\n", result.Diagnostics));
+
+        var assembly = System.Reflection.Assembly.Load(stream.ToArray());
+        object? actual = assembly.GetType("Soenneker.Quark.Demo")!.GetMethod("Verify")!.Invoke(null, null);
+        if (!Equals(actual, "[&_[data-slot=tag-input-inline-container]]:min-h-7|hover:min-h-0"))
+            throw new InvalidOperationException("Static modifiers must preserve selectors and use independent builders: " + actual);
+    }
+
     [Test]
     public void Generates_requested_tailwind_modifier_entrypoints()
     {
